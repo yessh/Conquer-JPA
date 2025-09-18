@@ -7,6 +7,7 @@ import example.mission_jpa.service.response.UserListResponse;
 import example.mission_jpa.service.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class UserService {
     private final UserRepository userRepository;
 
 
+    @Transactional
     public UserResponse createUser(UserRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new IllegalArgumentException("Username already exist");
@@ -36,14 +38,25 @@ public class UserService {
 
 
 
+    @Transactional
     public UserResponse updateUser(Long id, UserRequest request) {
-        User user = userRepository.findById(id).orElseThrow();
+        User user = userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        userRepository.findByEmail(request.getEmail()).ifPresent(u -> {
+            if (!u.getId().equals(id)) {
+                throw new IllegalArgumentException("Email already exist");
+            }
+        });
+
 
         user.update(request.getUsername(), request.getEmail());
-        return UserResponse.from(userRepository.save(user));
+        return UserResponse.from(user);
     }
 
 
+
+
+    @Transactional
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow();
@@ -51,12 +64,15 @@ public class UserService {
         userRepository.delete(user);
     }
 
+
+    @Transactional(readOnly = true)
     public UserResponse getUser(Long id) {
         User user = userRepository.findById(id).orElseThrow();
 
         return UserResponse.from(user);
     }
 
+    @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
         List<UserResponse> users = userRepository.findAll().stream()
                 .map(UserResponse::from)
