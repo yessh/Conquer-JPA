@@ -65,4 +65,16 @@ public class PostService {
 
         return posts;
     }
+
+    @Transactional
+    public List<PostResponse> getAllPostByUserId(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        List<PostResponse> posts = postRepository.findAllByUserId(user.getId()).stream()
+                .map(PostResponse::from)
+                .toList();
+
+        return posts;
+
+    }
 }
