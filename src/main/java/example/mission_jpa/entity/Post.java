@@ -22,12 +22,19 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public static Post create(String title, String content) {
+    public static Post create(String title, String content, User user) {
         Post post = new Post();
         post.title = title;
         post.content = content;
+        post.setUser(user);
         return post;
     }
+
+    private void setUser(User user) {
+        this.user = user;
+        user.getPosts().add(this);
+    }
+
 
     public void update(String title, String content) {
         this.title = title;

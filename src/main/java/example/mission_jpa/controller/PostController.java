@@ -10,36 +10,36 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/posts")
+@RequestMapping("/api")
 public class PostController {
 
     private final PostService postService;
 
-    @PostMapping("/")
-    public PostResponse createPost(@RequestBody PostRequest request) {
+    @PostMapping("/users/{userId}/posts")
+    public PostResponse createPost(@PathVariable Long userId, @RequestBody PostRequest request) {
 
-        return postService.createPost(request);
+        return postService.createPost(userId, request);
     }
 
-    @PutMapping("/{postId}")
+    @PutMapping("/posts/{postId}")
     public PostResponse updatePost(@PathVariable Long postId, @RequestBody PostRequest request) {
 
         return postService.updatePost(postId, request);
     }
 
 
-    @DeleteMapping("/{postId}")
+    @DeleteMapping("/posts/{postId}")
     public void deletePost(@PathVariable Long postId) {
 
         postService.deletePost(postId);
     }
 
-    @GetMapping("/{postId}")
+    @GetMapping("/posts/{postId}")
     public PostResponse getPost(@PathVariable Long postId) {
         return postService.getPost(postId);
     }
 
-    @GetMapping("")
+    @GetMapping("/posts")
     public List<PostResponse> getAllPosts() {
 
         return postService.getAllPost();
